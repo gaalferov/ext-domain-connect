@@ -3,9 +3,9 @@
 namespace DomainConnect\DTO;
 
 /**
- * Class DomainSetting
+ * Class DomainSettings
  */
-class DomainSetting
+class DomainSettings
 {
     /**
      * Unique identifier for the DNS Provider.
@@ -36,6 +36,13 @@ class DomainSetting
      * @var string|null
      */
     public $providerDisplayName;
+
+    /**
+     * Root Domain Name
+     *
+     * @var string
+     */
+    public $domain;
 
     /**
      * (optional) The URL Prefix for linking to the UX of Domain Connect for the synchronous flow at the DNS Provider.
@@ -89,4 +96,9 @@ class DomainSetting
      * @var array
      */
     public $nameServers = [];
+
+    /**
+     * @var bool
+     */
+    public $redirectSupported;
 }
