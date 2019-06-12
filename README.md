@@ -29,7 +29,7 @@ use DomainConnect\Exception\DomainConnectException;
 use GuzzleHttp\Client;
 
 try {
-    $domainConnect = new DomainConnect(new Client(), 'https://demo.bblog.online');
+    $domainConnect = new DomainConnect(new Client(), 'bblog.online');
     $applyUrl = $domainConnect->templateService->getTemplateSyncUrl(
         'exampleservice.domainconnect.org',
         'template1',
@@ -50,7 +50,8 @@ try {
 
 Output:
 ```text
-https://dcc.godaddy.com/manage/v2/domainTemplates/providers/exampleservice.domainconnect.org/services/template1/apply?domain=bblog.online&groupId=1%2C2%2C3&host=demo&ip=132.148.25.185&providerName=GoDaddy&randomtext=shm%3A1531371203%3AHello+world+sync&redirect_uri=https%3A%2F%2Fgoogle.comDomainConnect\DTO\DomainSettings Object
+https://dcc.godaddy.com/manage/v2/domainTemplates/providers/exampleservice.domainconnect.org/services/template1/apply?domain=bblog.online&groupId=1%2C2%2C3&ip=132.148.25.185&providerName=GoDaddy&randomtext=shm%3A1531371203%3AHello+world+sync&redirect_uri=https%3A%2F%2Fgoogle.com
+DomainConnect\DTO\DomainSettings Object
 (
     [providerId] => 
     [providerName] => GoDaddy
