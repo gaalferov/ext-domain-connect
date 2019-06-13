@@ -4,21 +4,18 @@ namespace Tests\Services;
 
 use DomainConnect\DTO\DomainSettings;
 use DomainConnect\Services\DnsService;
-use GuzzleHttp\Client;
-use LayerShifter\TLDExtract\Extract;
 
 class DnsServiceTest extends BaseServiceTest
 {
     /**
      * @dataProvider dnsServiceSuccessProvider
      *
-     * @param DnsService $dnsService
-     * @param string     $configKey
+     * @param string     $domainUrl
      */
-    public function testGetDomainSettingsSuccessCase(DnsService $dnsService, $configKey)
+    public function testGetDomainSettingsSuccessCase($domainUrl)
     {
-        $domainSettings = $dnsService->getDomainSettings();
-        $config = $this->configs[$configKey];
+        $domainSettings = (new DnsService())->getDomainSettings($domainUrl);
+        $config = $this->configs[$domainUrl];
 
         $this->assertInstanceOf(DomainSettings::class, $domainSettings);
 
@@ -32,8 +29,7 @@ class DnsServiceTest extends BaseServiceTest
      */
     public function testGetDomainSettingsInvalidCase()
     {
-        $dnsService = new DnsService(new Client(), (new Extract())->parse('blasdasdawsdasdx.qqqqqqq'));
-        $dnsService->getDomainSettings();
+        (new DnsService())->getDomainSettings('blasdasdawsdasdx.qqqqqqq');
     }
 
     /**
@@ -42,13 +38,9 @@ class DnsServiceTest extends BaseServiceTest
     public function dnsServiceSuccessProvider()
     {
         $data = [];
-        $client = new Client();
 
         foreach ($this->configs as $domainUrl => $domainConfig) {
-            $data[] = [
-                new DnsService($client, (new Extract())->parse($domainUrl)),
-                $domainUrl
-            ];
+            $data[] = [$domainUrl];
         }
 
         return $data;

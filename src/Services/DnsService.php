@@ -8,8 +8,10 @@ use DomainConnect\Exception\NoDomainConnectRecordException;
 use DomainConnect\Exception\NoDomainConnectSettingsException;
 use DomainConnect\Services\Utils\DnsUtils;
 use Exception;
+use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use LayerShifter\TLDExtract\Extract;
+use LayerShifter\TLDExtract\ResultInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
@@ -17,7 +19,7 @@ use Symfony\Component\Serializer\Serializer;
 /**
  * Class Dns
  */
-class DnsService extends BaseService
+class DnsService
 {
     /**
      * The URL prefix returned is subsequently used by the Service Provider to determine the additional settings
@@ -30,21 +32,26 @@ class DnsService extends BaseService
     /**
      * Get Domain settings
      *
+     * @param string $domain
+     *
      * @return DomainSettings
      *
-     * @throws NoDomainConnectSettingsException
      * @throws InvalidDomainConnectSettingsException
+     * @throws NoDomainConnectSettingsException
      */
-    public function getDomainSettings()
+    public function getDomainSettings($domain)
     {
-        $rootDomainName = $this->getRootDomainName();
+        $extractDomain = (new Extract())->parse($domain);
+        $subDomain = $extractDomain->getSubdomain();
+        $rootDomainName = $this->getRootDomainName($extractDomain);
         $apiUrl = $this->getDomainApiUrl($rootDomainName);
 
         $normalizers = [new ObjectNormalizer()];
         $serializer = new Serializer($normalizers, [new JsonEncoder()]);
+        $apiClient = new Client();
 
         try {
-            $response = $this->apiClient->request('GET', sprintf(self::DOMAIN_SETTINGS_URL, $apiUrl, $rootDomainName));
+            $response = $apiClient->request('GET', sprintf(self::DOMAIN_SETTINGS_URL, $apiUrl, $rootDomainName));
 
             /** @var DomainSettings $domainSettings */
             $domainSettings = $serializer->deserialize(
@@ -55,6 +62,10 @@ class DnsService extends BaseService
 
             if (empty($domainSettings->domain)) {
                 $domainSettings->domain = $rootDomainName;
+            }
+
+            if (!empty($subDomain) && $subDomain !== 'www') {
+                $domainSettings->host = $subDomain;
             }
 
             return $domainSettings;
@@ -71,15 +82,17 @@ class DnsService extends BaseService
     }
 
     /**
+     * @param ResultInterface $domain
+     *
      * @return string
      */
-    private function getRootDomainName()
+    private function getRootDomainName(ResultInterface $domain)
     {
-        if ($this->domain->isIp()) {
-            return $this->domain->getHostname();
+        if ($domain->isIp()) {
+            return $domain->getHostname();
         }
 
-        return $this->domain->getRegistrableDomain();
+        return $domain->getRegistrableDomain();
     }
 
     /**

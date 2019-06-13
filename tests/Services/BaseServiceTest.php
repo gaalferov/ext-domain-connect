@@ -20,10 +20,11 @@ abstract class BaseServiceTest extends TestCase
             'urlSyncUX' => 'https://domainconnect.1and1.com/sync',
             'urlAsyncUX' => 'https://domainconnect.1and1.com/async',
         ],
-        'http://www.weathernyc.nyc' => [
+        'http://subdomain.weathernyc.nyc' => [
             'providerName' => 'GoDaddy',
             'urlAPI' => 'https://domainconnect.api.godaddy.com',
             'domain' => 'weathernyc.nyc',
+            'host' => 'subdomain',
             'urlSyncUX' => 'https://dcc.godaddy.com/manage',
             'urlAsyncUX' => 'https://dcc.godaddy.com/manage',
         ],

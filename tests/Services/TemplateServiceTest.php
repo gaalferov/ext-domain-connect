@@ -12,20 +12,19 @@ class TemplateServiceTest extends BaseServiceTest
     /**
      * @dataProvider templateSupportSuccessProvider
      *
-     * @param TemplateService $templateService
-     * @param string          $providerId
-     * @param string          $serviceId
-     * @param string          $configKey
+     * @param string $domain
+     * @param string $providerId
+     * @param string $serviceId
      */
-    public function testGetTemplateSyncUrlSuccessCase($templateService, $providerId, $serviceId, $configKey)
+    public function testGetTemplateSyncUrlSuccessCase($domain, $providerId, $serviceId)
     {
-        $config = $this->configs[$configKey];
+        $templateService = new TemplateService();
+        $config = $this->configs[$domain];
         $params = [
             'randomtext' => 'shm:1531371203:Hello world sync',
             'ip' => '132.148.25.185',
         ];
-
-        $templateUrl = $templateService->getTemplateSyncUrl($providerId, $serviceId, $params);
+        $templateUrl = (new TemplateService())->getTemplateSyncUrl($domain, $providerId, $serviceId, $params);
 
         $this->assertEquals(
             sprintf(
@@ -43,12 +42,13 @@ class TemplateServiceTest extends BaseServiceTest
      * @dataProvider templateSupportSuccessProvider
      * @expectedException DomainConnect\Exception\TemplateNotSupportedException
      *
-     * @param TemplateService $templateService
-     * @param string          $providerId
+     * @param string $domain
+     * @param string $providerId
      */
-    public function testGetTemplateSyncUrlInvalidCase($templateService, $providerId)
+    public function testGetTemplateSyncUrlInvalidCase($domain, $providerId)
     {
-        $templateService->getTemplateSyncUrl(
+        (new TemplateService())->getTemplateSyncUrl(
+            $domain,
             $providerId,
             'notExistServiceId',
             [
@@ -61,24 +61,32 @@ class TemplateServiceTest extends BaseServiceTest
     /**
      * @dataProvider templateSupportSuccessProvider
      *
-     * @param TemplateService $templateService
-     * @param string          $providerId
-     * @param string          $serviceId
+     * @param string $domain
+     * @param string $providerId
+     * @param string $serviceId
      */
-    public function testIsTemplateSupportedSuccessCase(TemplateService $templateService, $providerId, $serviceId)
+    public function testIsTemplateSupportedSuccessCase($domain, $providerId, $serviceId)
     {
-        $this->assertTrue($templateService->isTemplateSupported($providerId, $serviceId));
+        $this->assertTrue((new TemplateService())->isTemplateSupported(
+            $providerId,
+            $serviceId,
+            (new DnsService())->getDomainSettings($domain)
+        ));
     }
 
     /**
      * @dataProvider templateSupportSuccessProvider
      *
-     * @param TemplateService $templateService
-     * @param string                $providerId
+     * @param string $domain
+     * @param string $providerId
      */
-    public function testIsTemplateSupportedInvalidCase(TemplateService $templateService, $providerId)
+    public function testIsTemplateSupportedInvalidCase($domain, $providerId)
     {
-        $this->assertFalse($templateService->isTemplateSupported($providerId, 'notExistServiceId'));
+        $this->assertFalse((new TemplateService())->isTemplateSupported(
+            $providerId,
+            'notExistServiceId',
+            (new DnsService())->getDomainSettings($domain)
+        ));
     }
 
     /**
@@ -87,20 +95,12 @@ class TemplateServiceTest extends BaseServiceTest
     public function templateSupportSuccessProvider()
     {
         $data = [];
-        $client = new Client();
 
         foreach ($this->configs as $domainUrl => $domainConfig) {
-            $resultDomainInfo = (new Extract())->parse($domainUrl);
-
             $data[] = [
-                new TemplateService(
-                    $client,
-                    $resultDomainInfo,
-                    (new DnsService($client, $resultDomainInfo))->getDomainSettings()
-                ),
+                $domainUrl,
                 'exampleservice.domainconnect.org',
-                'template1',
-                $domainUrl
+                'template1'
             ];
         }
 
@@ -119,6 +119,10 @@ class TemplateServiceTest extends BaseServiceTest
             'domain' => $config['domain'],
             'providerName' => $config['providerName'],
         ], $params);
+
+        if ($config['host']) {
+            $result['host'] = $config['host'];
+        }
 
         ksort($result, SORT_NATURAL | SORT_FLAG_CASE);
 

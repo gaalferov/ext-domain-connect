@@ -45,6 +45,13 @@ class DomainSettings
     public $domain;
 
     /**
+     * (optional) Sub domain
+     *
+     * @var string
+     */
+    public $host;
+
+    /**
      * (optional) The URL Prefix for linking to the UX of Domain Connect for the synchronous flow at the DNS Provider.
      * If not returned, the DNS Provider is not supporting the synchronous flow on this domain.
      *

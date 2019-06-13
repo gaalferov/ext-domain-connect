@@ -24,13 +24,12 @@ Just get the link. Discovery and template query part is solved automatically.
 
 require 'vendor/autoload.php';
 
-use DomainConnect\DomainConnect;
 use DomainConnect\Exception\DomainConnectException;
-use GuzzleHttp\Client;
+use DomainConnect\Services\TemplateService;
 
 try {
-    $domainConnect = new DomainConnect(new Client(), 'bblog.online');
-    $applyUrl = $domainConnect->templateService->getTemplateSyncUrl(
+    $applyUrl = (new TemplateService())->getTemplateSyncUrl(
+        'www.weathernyc.nyc',
         'exampleservice.domainconnect.org',
         'template1',
         [
@@ -42,7 +41,6 @@ try {
     );
 
     print_r($applyUrl);
-    print_r($domainConnect->templateService->domainSettings);
 } catch (DomainConnectException $e) {
     echo (sprintf('An error has occurred: %s', $e->getMessage()));
 }
@@ -51,40 +49,6 @@ try {
 Output:
 ```text
 https://dcc.godaddy.com/manage/v2/domainTemplates/providers/exampleservice.domainconnect.org/services/template1/apply?domain=bblog.online&groupId=1%2C2%2C3&ip=132.148.25.185&providerName=GoDaddy&randomtext=shm%3A1531371203%3AHello+world+sync&redirect_uri=https%3A%2F%2Fgoogle.com
-DomainConnect\DTO\DomainSettings Object
-(
-    [providerId] => 
-    [providerName] => GoDaddy
-    [urlAPI] => https://domainconnect.api.godaddy.com
-    [providerDisplayName] => 
-    [domain] => bblog.online
-    [urlSyncUX] => https://dcc.godaddy.com/manage
-    [urlAsyncUX] => https://dcc.godaddy.com/manage
-    [width] => 750
-    [height] => 750
-    [urlControlPanel] => https://dcc.godaddy.com/manage/dns
-    [nameServers] => Array
-        (
-        )
-
-    [redirectSupported] => 
-)
-```
-
-## Custom http/https proxy
-
-```php
-...
-$domainConnect = new DomainConnect(
-    new Client([
-    'proxy' => [
-        'http'  => 'tcp://localhost:8125', // Use this proxy with "http"
-        'https' => 'tcp://localhost:9124', // Use this proxy with "https",
-        'no' => ['.mit.edu', 'foo.com']    // Don't use a proxy with these
-    ]]),
-    'https://demo.bblog.online'
-);
-...
 ```
 
 ## Tests

@@ -7,12 +7,11 @@ use DomainConnect\Exception\InvalidDomainConnectSettingsException;
 use DomainConnect\Exception\TemplateNotSupportedException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
-use LayerShifter\TLDExtract\ResultInterface;
 
 /**
  * Class TemplateService
  */
-class TemplateService extends BaseService
+class TemplateService
 {
     /**
      * This URL is be used by the Service Provider to determine if the DNS Provider supports a specific
@@ -31,20 +30,9 @@ class TemplateService extends BaseService
     const TEMPLATE_APPLY_URL = '%s/v2/domainTemplates/providers/%s/services/%s/apply?%s';
 
     /**
-     * @var DomainSettings
-     */
-    public $domainSettings;
-
-    public function __construct(Client $apiClient, ResultInterface $domain, DomainSettings $domainSettings)
-    {
-        parent::__construct($apiClient, $domain);
-
-        $this->domainSettings = $domainSettings;
-    }
-
-    /**
      * Makes full Domain Connect discovery of a domain and returns full url to request sync consent.
      *
+     * @param string $domain
      * @param string $providerId
      * @param string $serviceId
      * @param array  optional $params
@@ -57,6 +45,7 @@ class TemplateService extends BaseService
      * @throws InvalidDomainConnectSettingsException
      */
     public function getTemplateSyncUrl(
+        $domain,
         $providerId,
         $serviceId,
         $params = null,
@@ -64,9 +53,9 @@ class TemplateService extends BaseService
         $keyid = null
     ) {
         $params = $params ?: [];
-        $subDomain = $this->domain->getSubdomain();
+        $domainSettings = (new DnsService())->getDomainSettings($domain);
 
-        if (!$this->isTemplateSupported($providerId, $serviceId)) {
+        if (!$this->isTemplateSupported($providerId, $serviceId, $domainSettings)) {
             throw new TemplateNotSupportedException(sprintf(
                     'No template for serviceId: %s from %s',
                     $serviceId,
@@ -74,24 +63,23 @@ class TemplateService extends BaseService
             );
         }
 
-        if (!$this->domainSettings->urlSyncUX) {
+        if (!$domainSettings->urlSyncUX) {
             throw new InvalidDomainConnectSettingsException('No sync URL in config');
         }
 
-        if (!empty($subDomain) && $subDomain !== 'www') {
-            $params['host'] = $subDomain;
+        if (!empty($domainSettings->host)) {
+            $params['host'] = $domainSettings->host;
         }
 
         $params = array_merge([
-            'domain' => $this->domainSettings->domain,
-            'providerName' => $this->domainSettings->providerDisplayName ?: $this->domainSettings->providerName,
+            'domain' => $domainSettings->domain,
+            'providerName' => $domainSettings->providerDisplayName ?: $domainSettings->providerName,
         ], $params);
         ksort($params, SORT_NATURAL | SORT_FLAG_CASE);
 
-        //TODO implement functional $privateKey and $keyid
         return sprintf(
             self::TEMPLATE_APPLY_URL,
-            $this->domainSettings->urlSyncUX,
+            $domainSettings->urlSyncUX,
             $providerId,
             $serviceId,
             http_build_query($params)
@@ -99,17 +87,18 @@ class TemplateService extends BaseService
     }
 
     /**
-     * @param string $providerId
-     * @param string $serviceId
+     * @param string         $providerId
+     * @param string         $serviceId
+     * @param DomainSettings $domainSettings
      *
      * @return bool
      */
-    public function isTemplateSupported($providerId, $serviceId)
+    public function isTemplateSupported($providerId, $serviceId, DomainSettings $domainSettings)
     {
         try {
-            $response = $this->apiClient->request(
+            $response = (new Client())->request(
                 'GET',
-                sprintf(self::TEMPLATE_CHECK_URL, $this->domainSettings->urlAPI, $providerId, $serviceId)
+                sprintf(self::TEMPLATE_CHECK_URL, $domainSettings->urlAPI, $providerId, $serviceId)
             );
 
             return $response->getStatusCode() === 200;
