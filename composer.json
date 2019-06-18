@@ -1,5 +1,5 @@
 {
-  "name": "halforov/php-ext-domain-connect",
+  "name": "tsohost/php-ext-domain-connect",
   "description": "PHP extension for Dimain Connect",
   "type": "project",
   "license": "MIT",
