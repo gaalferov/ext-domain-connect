@@ -14,7 +14,6 @@
     "ext-json": "*",
     "guzzlehttp/guzzle": "^6.3",
     "layershifter/tld-extract": "^2.0",
-    "symfony/serializer": "^3.4",
     "symfony/property-access": "^3.4"
   },
   "require-dev": {

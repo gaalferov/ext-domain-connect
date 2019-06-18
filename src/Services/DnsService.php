@@ -12,9 +12,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use LayerShifter\TLDExtract\Extract;
 use LayerShifter\TLDExtract\ResultInterface;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
 
 /**
  * Class Dns
@@ -45,20 +42,11 @@ class DnsService
         $subDomain = $extractDomain->getSubdomain();
         $rootDomainName = $this->getRootDomainName($extractDomain);
         $apiUrl = $this->getDomainApiUrl($rootDomainName);
-
-        $normalizers = [new ObjectNormalizer()];
-        $serializer = new Serializer($normalizers, [new JsonEncoder()]);
         $apiClient = new Client();
 
         try {
             $response = $apiClient->request('GET', sprintf(self::DOMAIN_SETTINGS_URL, $apiUrl, $rootDomainName));
-
-            /** @var DomainSettings $domainSettings */
-            $domainSettings = $serializer->deserialize(
-                $response->getBody()->getContents(),
-                DomainSettings::class,
-                'json'
-            );
+            $domainSettings = DomainSettings::loadFromJson($response->getBody()->getContents());
 
             if (empty($domainSettings->domain)) {
                 $domainSettings->domain = $rootDomainName;

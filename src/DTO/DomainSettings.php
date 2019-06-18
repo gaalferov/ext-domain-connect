@@ -108,4 +108,23 @@ class DomainSettings
      * @var bool
      */
     public $redirectSupported;
+
+    /**
+     * @param string $json
+     *
+     * @return DomainSettings
+     */
+    public static function loadFromJson($json)
+    {
+        $result = json_decode($json, true);
+        $obj = new self();
+
+        foreach (get_object_vars($obj) as $key => $val) {
+            if (!empty($result[$key])) {
+                $obj->{$key} = $result[$key];
+            }
+        }
+
+        return $obj;
+    }
 }
