@@ -25,6 +25,16 @@ class DnsServiceTest extends BaseServiceTest
     }
 
     /**
+     * @dataProvider invalidDomainProvider
+     *
+     * @expectedException     DomainConnect\Exception\InvalidDomainException
+     */
+    public function testGetDomainSettingsInvalidDomainCase($domain)
+    {
+        (new DnsService())->getDomainSettings($domain);
+    }
+
+    /**
      * @expectedException     DomainConnect\Exception\NoDomainConnectRecordException
      */
     public function testGetDomainSettingsInvalidCase()
@@ -44,5 +54,17 @@ class DnsServiceTest extends BaseServiceTest
         }
 
         return $data;
+    }
+
+    /**
+     * @return array
+     */
+    public function invalidDomainProvider()
+    {
+        return [
+            ['http://a-.bc.com'],
+            ['http://a.bc.com-'],
+            ['http://toolongtoolongtoolongtoolongtoolongtoolongtoolongtoolongtoolongtoolong.com'],
+        ];
     }
 }

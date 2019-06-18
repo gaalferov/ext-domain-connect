@@ -4,6 +4,7 @@ namespace DomainConnect\Services;
 
 use DomainConnect\DTO\DomainSettings;
 use DomainConnect\Exception\InvalidDomainConnectSettingsException;
+use DomainConnect\Exception\InvalidDomainException;
 use DomainConnect\Exception\NoDomainConnectRecordException;
 use DomainConnect\Exception\NoDomainConnectSettingsException;
 use DomainConnect\Services\Utils\DnsUtils;
@@ -35,10 +36,16 @@ class DnsService
      *
      * @throws InvalidDomainConnectSettingsException
      * @throws NoDomainConnectSettingsException
+     * @throws InvalidDomainException
      */
     public function getDomainSettings($domain)
     {
         $extractDomain = (new Extract())->parse($domain);
+
+        if (!$extractDomain->isIp() && !$extractDomain->isValidDomain()) {
+            throw new InvalidDomainException('Invalid domain name: ' . $domain);
+        }
+
         $subDomain = $extractDomain->getSubdomain();
         $rootDomainName = $this->getRootDomainName($extractDomain);
         $apiUrl = $this->getDomainApiUrl($rootDomainName);
