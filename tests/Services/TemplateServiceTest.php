@@ -2,10 +2,7 @@
 
 namespace Tests\Services;
 
-use DomainConnect\Services\DnsService;
 use DomainConnect\Services\TemplateService;
-use GuzzleHttp\Client;
-use LayerShifter\TLDExtract\Extract;
 
 class TemplateServiceTest extends BaseServiceTest
 {
@@ -18,17 +15,16 @@ class TemplateServiceTest extends BaseServiceTest
      */
     public function testGetTemplateSyncUrlSuccessCase($domain, $providerId, $serviceId)
     {
-        $templateService = new TemplateService();
         $config = $this->configs[$domain];
         $params = [
             'randomtext' => 'shm:1531371203:Hello world sync',
             'ip' => '132.148.25.185',
         ];
-        $templateUrl = (new TemplateService())->getTemplateSyncUrl($domain, $providerId, $serviceId, $params);
+        $templateUrl = self::$templateService->getTemplateSyncUrl($domain, $providerId, $serviceId, $params);
 
         $this->assertEquals(
             sprintf(
-                $templateService::TEMPLATE_APPLY_URL,
+                TemplateService::TEMPLATE_APPLY_URL,
                 $config['urlSyncUX'],
                 $providerId,
                 $serviceId,
@@ -47,7 +43,7 @@ class TemplateServiceTest extends BaseServiceTest
      */
     public function testGetTemplateSyncUrlInvalidCase($domain, $providerId)
     {
-        (new TemplateService())->getTemplateSyncUrl(
+        self::$templateService->getTemplateSyncUrl(
             $domain,
             $providerId,
             'notExistServiceId',
@@ -67,10 +63,10 @@ class TemplateServiceTest extends BaseServiceTest
      */
     public function testIsTemplateSupportedSuccessCase($domain, $providerId, $serviceId)
     {
-        $this->assertTrue((new TemplateService())->isTemplateSupported(
+        $this->assertTrue(self::$templateService->isTemplateSupported(
             $providerId,
             $serviceId,
-            (new DnsService())->getDomainSettings($domain)
+            self::$dnsService->getDomainSettings($domain)
         ));
     }
 
@@ -82,10 +78,10 @@ class TemplateServiceTest extends BaseServiceTest
      */
     public function testIsTemplateSupportedInvalidCase($domain, $providerId)
     {
-        $this->assertFalse((new TemplateService())->isTemplateSupported(
+        $this->assertFalse(self::$templateService->isTemplateSupported(
             $providerId,
             'notExistServiceId',
-            (new DnsService())->getDomainSettings($domain)
+            self::$dnsService->getDomainSettings($domain)
         ));
     }
 
@@ -116,8 +112,7 @@ class TemplateServiceTest extends BaseServiceTest
     private function getApplyQueryByParams($params, $config)
     {
         $result = array_merge([
-            'domain' => $config['domain'],
-            'providerName' => $config['providerName'],
+            'domain' => $config['domain']
         ], $params);
 
         if ($config['host']) {

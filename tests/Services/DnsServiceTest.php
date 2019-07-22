@@ -3,7 +3,6 @@
 namespace Tests\Services;
 
 use DomainConnect\DTO\DomainSettings;
-use DomainConnect\Services\DnsService;
 
 class DnsServiceTest extends BaseServiceTest
 {
@@ -14,7 +13,7 @@ class DnsServiceTest extends BaseServiceTest
      */
     public function testGetDomainSettingsSuccessCase($domainUrl)
     {
-        $domainSettings = (new DnsService())->getDomainSettings($domainUrl);
+        $domainSettings = self::$dnsService->getDomainSettings($domainUrl);
         $config = $this->configs[$domainUrl];
 
         $this->assertInstanceOf(DomainSettings::class, $domainSettings);
@@ -31,7 +30,7 @@ class DnsServiceTest extends BaseServiceTest
      */
     public function testGetDomainSettingsInvalidDomainCase($domain)
     {
-        (new DnsService())->getDomainSettings($domain);
+        self::$dnsService->getDomainSettings($domain);
     }
 
     /**
@@ -39,7 +38,7 @@ class DnsServiceTest extends BaseServiceTest
      */
     public function testGetDomainSettingsInvalidCase()
     {
-        (new DnsService())->getDomainSettings('blasdasdawsdasdx.qqqqqqq');
+        self::$dnsService->getDomainSettings('blasdasdawsdasdx.qqqqqqq');
     }
 
     /**
