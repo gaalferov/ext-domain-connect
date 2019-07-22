@@ -1,6 +1,6 @@
 {
   "name": "tsohost/php-ext-domain-connect",
-  "description": "PHP extension for Dimain Connect",
+  "description": "PHP extension for Domain Connect",
   "type": "project",
   "license": "MIT",
   "autoload": {
@@ -12,6 +12,7 @@
   "require": {
     "php": ">=5.6",
     "ext-json": "*",
+    "ext-openssl": "*",
     "guzzlehttp/guzzle": "^6.3",
     "layershifter/tld-extract": "^2.0"
   },

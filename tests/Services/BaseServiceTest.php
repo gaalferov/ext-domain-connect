@@ -2,6 +2,9 @@
 
 namespace Tests\Services;
 
+use DomainConnect\Services\DnsService;
+use DomainConnect\Services\TemplateService;
+use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -10,10 +13,25 @@ use PHPUnit\Framework\TestCase;
 abstract class BaseServiceTest extends TestCase
 {
     /**
+     * @var Client
+     */
+    protected static $client;
+
+    /**
+     * @var DnsService
+     */
+    protected static $dnsService;
+
+    /**
+     * @var TemplateService
+     */
+    protected static $templateService;
+
+    /**
      * @var array
      */
     public $configs = [
-        'www.connect.domains' => [
+        'connect.domains' => [
             'providerName' => '1and1',
             'urlAPI' => 'https://api.domainconnect.1and1.com',
             'domain' => 'connect.domains',
@@ -29,4 +47,22 @@ abstract class BaseServiceTest extends TestCase
             'urlAsyncUX' => 'https://dcc.godaddy.com/manage',
         ],
     ];
+
+    public static function setUpBeforeClass()
+    {
+        self::$client = new Client(['verify' => false]);
+        self::$dnsService = new DnsService(self::$client);
+        self::$templateService = new TemplateService();
+
+        parent::setUpBeforeClass();
+    }
+
+    public static function tearDownAfterClass()
+    {
+        self::$client = null;
+        self::$dnsService = null;
+        self::$templateService = null;
+
+        parent::tearDownAfterClass();
+    }
 }

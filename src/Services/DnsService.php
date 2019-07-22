@@ -23,9 +23,36 @@ class DnsService
      * The URL prefix returned is subsequently used by the Service Provider to determine the additional settings
      * for using Domain Connect on this domain at the DNS Provider.
      *
-     * https://{_domainconnect}/v2/{domain}/settings
+     * @var string https://{_domainconnect}/v2/{domain}/settings
      */
     const DOMAIN_SETTINGS_URL = 'https://%s/v2/%s/settings';
+
+    /**
+     * @var Client
+     */
+    private $client;
+
+    /**
+     * @var Extract
+     */
+    private $domainExtractor;
+
+    /**
+     * @var DnsUtils
+     */
+    private $dnsUtils;
+
+    /**
+     * DnsService constructor.
+     *
+     * @param Client $client
+     */
+    public function __construct(Client $client)
+    {
+        $this->client = $client;
+        $this->domainExtractor = new Extract();
+        $this->dnsUtils = new DnsUtils();
+    }
 
     /**
      * Get Domain settings
@@ -40,7 +67,7 @@ class DnsService
      */
     public function getDomainSettings($domain)
     {
-        $extractDomain = (new Extract())->parse($domain);
+        $extractDomain = $this->domainExtractor->parse($domain);
 
         if (!$extractDomain->isIp() && !$extractDomain->isValidDomain()) {
             throw new InvalidDomainException('Invalid domain name: ' . $domain);
@@ -49,17 +76,16 @@ class DnsService
         $subDomain = $extractDomain->getSubdomain();
         $rootDomainName = $this->getRootDomainName($extractDomain);
         $apiUrl = $this->getDomainApiUrl($rootDomainName);
-        $apiClient = new Client();
 
         try {
-            $response = $apiClient->request('GET', sprintf(self::DOMAIN_SETTINGS_URL, $apiUrl, $rootDomainName));
+            $response = $this->client->request('GET', sprintf(self::DOMAIN_SETTINGS_URL, $apiUrl, $rootDomainName));
             $domainSettings = DomainSettings::loadFromJson($response->getBody()->getContents());
 
             if (empty($domainSettings->domain)) {
                 $domainSettings->domain = $rootDomainName;
             }
 
-            if (!empty($subDomain) && $subDomain !== 'www') {
+            if (!empty($subDomain)) {
                 $domainSettings->host = $subDomain;
             }
 
@@ -101,11 +127,10 @@ class DnsService
      */
     private function getDomainApiUrl($rootDomainName)
     {
-        $domainExtract = new Extract();
-        $dnsRecords = (new DnsUtils())->getTxtRecords("_domainconnect.{$rootDomainName}");
+        $dnsRecords = $this->dnsUtils->getTxtRecords("_domainconnect.{$rootDomainName}");
 
         foreach ($dnsRecords as $dnsApiUrl) {
-            $domain = $domainExtract->parse($dnsApiUrl);
+            $domain = $this->domainExtractor->parse($dnsApiUrl);
 
             if ($domain->isValidDomain()) {
                 return $domain->getFullHost();
