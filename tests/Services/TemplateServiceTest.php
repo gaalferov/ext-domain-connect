@@ -115,7 +115,7 @@ class TemplateServiceTest extends BaseServiceTest
             'domain' => $config['domain']
         ], $params);
 
-        if ($config['host']) {
+        if (!empty($config['host'])) {
             $result['host'] = $config['host'];
         }
 
