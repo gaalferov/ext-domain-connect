@@ -23,25 +23,30 @@ class DnsService
      * The URL prefix returned is subsequently used by the Service Provider to determine the additional settings
      * for using Domain Connect on this domain at the DNS Provider.
      *
-     * https://{_domainconnect}/v2/{domain}/settings
+     * @var string https://{_domainconnect}/v2/{domain}/settings
      */
     const DOMAIN_SETTINGS_URL = 'https://%s/v2/%s/settings';
-    
+
     /**
      * @var Client
      */
     private $client;
-    
+
     /**
      * @var Extract
      */
     private $domainExtractor;
-    
+
     /**
      * @var DnsUtils
      */
     private $dnsUtils;
 
+    /**
+     * DnsService constructor.
+     *
+     * @param Client $client
+     */
     public function __construct(Client $client)
     {
         $this->client = $client;
@@ -80,7 +85,7 @@ class DnsService
                 $domainSettings->domain = $rootDomainName;
             }
 
-            if (!empty($subDomain) && $subDomain !== 'www') {
+            if (!empty($subDomain)) {
                 $domainSettings->host = $subDomain;
             }
 
