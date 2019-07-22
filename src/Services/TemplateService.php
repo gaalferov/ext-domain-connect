@@ -30,6 +30,22 @@ class TemplateService
     const TEMPLATE_APPLY_URL = '%s/v2/domainTemplates/providers/%s/services/%s/apply?%s';
 
     /**
+     * @var DnsService
+     */
+    private $dnsService;
+
+    /**
+     * @var Client
+     */
+    private $client;
+
+    public function __construct(array $clientConfig = [])
+    {
+        $this->client = new Client($clientConfig);
+        $this->dnsService = new DnsService($this->client);
+    }
+
+    /**
      * Makes full Domain Connect discovery of a domain and returns full url to request sync consent.
      *
      * @param string $domain
@@ -53,7 +69,7 @@ class TemplateService
         $keyid = null
     ) {
         $params = $params ?: [];
-        $domainSettings = (new DnsService())->getDomainSettings($domain);
+        $domainSettings = $this->dnsService->getDomainSettings($domain);
 
         if (!$this->isTemplateSupported($providerId, $serviceId, $domainSettings)) {
             throw new TemplateNotSupportedException(sprintf(
@@ -96,7 +112,7 @@ class TemplateService
     public function isTemplateSupported($providerId, $serviceId, DomainSettings $domainSettings)
     {
         try {
-            $response = (new Client())->request(
+            $response = $this->client->request(
                 'GET',
                 sprintf(self::TEMPLATE_CHECK_URL, $domainSettings->urlAPI, $providerId, $serviceId)
             );
