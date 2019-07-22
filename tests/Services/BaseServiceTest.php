@@ -50,7 +50,7 @@ abstract class BaseServiceTest extends TestCase
 
     public static function setUpBeforeClass()
     {
-        self::$client = new Client();
+        self::$client = new Client(['verify' => false]);
         self::$dnsService = new DnsService(self::$client);
         self::$templateService = new TemplateService();
 
