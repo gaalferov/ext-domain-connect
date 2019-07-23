@@ -78,10 +78,8 @@ class TemplateService
         $domainSettings = $this->dnsService->getDomainSettings($domain);
 
         if (!$this->isTemplateSupported($providerId, $serviceId, $domainSettings)) {
-            throw new TemplateNotSupportedException(sprintf(
-                    'No template for serviceId: %s from %s',
-                    $serviceId,
-                    $providerId)
+            throw new TemplateNotSupportedException(
+                sprintf('No template for serviceId: %s from %s', $serviceId, $providerId)
             );
         }
 

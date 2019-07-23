@@ -38,9 +38,11 @@ class DnsUtils
      */
     public function getTxtRecords($domain)
     {
-        $txtRecords = array_filter(array_map(function ($record) {
-            return $record['txt'];
-            }, $this->getDnsRecordsByType($domain, DNS_TXT)
+        $txtRecords = array_filter(array_map(
+            function ($record) {
+                return $record['txt'];
+            },
+            $this->getDnsRecordsByType($domain, DNS_TXT)
         ));
 
         if (empty($txtRecords)) {
