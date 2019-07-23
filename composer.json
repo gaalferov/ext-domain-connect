@@ -20,6 +20,8 @@
     "phpunit/phpunit": "^5"
   },
   "scripts": {
-    "tests": "php vendor/bin/phpunit ./tests"
+    "tests": "php vendor/bin/phpunit ./tests",
+    "cs-audit": "php-cs-fixer fix -v --diff --dry-run",
+    "cs-fix": "php-cs-fixer fix -v --diff"
   }
 }
