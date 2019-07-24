@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/032df50a272e4fc1a06576d68130066a)](https://app.codacy.com/app/gaalferov/ext-domain-connect?utm_source=github.com&utm_medium=referral&utm_content=gaalferov/ext-domain-connect&utm_campaign=Badge_Grade_Dashboard)
 [![Build Status](https://travis-ci.com/gaalferov/ext-domain-connect.svg?branch=master)](https://travis-ci.com/gaalferov/ext-domain-connect)
 
 # domain-connect
