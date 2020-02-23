@@ -1,6 +1,12 @@
 {
-  "name": "tsohost/php-ext-domain-connect",
+  "name": "gaalferov/php-ext-domain-connect",
   "description": "PHP extension for Domain Connect",
+  "authors": [
+    {
+      "name": "Hennadii Alforov",
+      "email": "a@gaalferov.com"
+    }
+  ],
   "type": "project",
   "license": "MIT",
   "autoload": {

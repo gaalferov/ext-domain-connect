@@ -11,6 +11,11 @@ https://github.com/Domain-Connect/spec/blob/master/Domain%20Connect%20Spec%20Dra
 - Version: 2.1
 - Revision: 61
 
+## Install
+```bash
+composer require gaalferov/php-ext-domain-connect
+```
+
 ## Usage
 
 ### Sync flow
