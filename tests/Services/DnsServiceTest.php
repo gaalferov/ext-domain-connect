@@ -62,7 +62,6 @@ class DnsServiceTest extends BaseServiceTest
     {
         return [
             ['http://a-.bc.com'],
-            ['http://a.bc.com-'],
             ['http://toolongtoolongtoolongtoolongtoolongtoolongtoolongtoolongtoolongtoolong.com'],
         ];
     }
