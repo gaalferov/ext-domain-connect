@@ -32,17 +32,17 @@ abstract class BaseServiceTest extends TestCase
      */
     public $configs = [
         'connect.domains' => [
-            'providerName' => '1and1',
-            'urlAPI' => 'https://api.domainconnect.1and1.com',
+            'providerName' => 'IONOS',
+            'urlAPI' => 'https://api.domainconnect.ionos.com',
             'domain' => 'connect.domains',
-            'urlSyncUX' => 'https://domainconnect.1and1.com/sync',
-            'urlAsyncUX' => 'https://domainconnect.1and1.com/async',
+            'urlSyncUX' => 'https://domainconnect.ionos.com/sync',
+            'urlAsyncUX' => 'https://domainconnect.ionos.com/async',
         ],
-        'http://subdomain.weathernyc.nyc' => [
+        'https://www.domainconnect.org' => [
             'providerName' => 'GoDaddy',
             'urlAPI' => 'https://domainconnect.api.godaddy.com',
-            'domain' => 'weathernyc.nyc',
-            'host' => 'subdomain',
+            'domain' => 'domainconnect.org',
+            'host' => 'www',
             'urlSyncUX' => 'https://dcc.godaddy.com/manage',
             'urlAsyncUX' => 'https://dcc.godaddy.com/manage',
         ],
