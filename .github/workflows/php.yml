@@ -15,8 +15,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Change php the one from matrix
-        run: sudo update-alternatives --set php /usr/bin/php${{ matrix.php-versions }}
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: json, openssl
 
       - name: Get PHP version
         run: php -v
@@ -27,6 +30,7 @@ jobs:
       - name: Get Composer Cache Directory
         id: composer-cache
         run: echo "COMPOSER_DIR=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
       - uses: actions/cache@v3
         with:
           path: ${{ steps.composer-cache.outputs.COMPOSER_DIR }}
@@ -35,7 +39,7 @@ jobs:
             ${{ runner.os }}-composer-
 
       - name: Install Composer dependencies
-        run: composer install --prefer-dist --no-progress
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
 
       - name: Run phpunit tests
         run: composer run-script tests
