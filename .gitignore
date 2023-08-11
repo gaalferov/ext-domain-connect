@@ -1,3 +1,20 @@
-.idea
-.php_cs.cache
-/vendor/
+###> composer ###
+vendor/
+composer.lock
+###> composer ###
+
+###> phpunit ###
+.phpunit.result.cache
+phpunit.xml
+###> phpunit ###
+
+###> files for local testing ###
+test.php
+docker-compose.yaml
+Dockerfile
+###> files for local testing ###
+
+###> other ###
+.idea/
+.psalm-cache/
+###> other ###
