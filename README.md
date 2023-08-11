@@ -1,6 +1,6 @@
 PHP extension for Domain Connect
 ===============
-![GitHub Actions](https://github.com/gaalferov/php-ext-domain-connect/actions/workflows/ci-phpunit.yml/badge.svg)
+![GitHub Actions](https://github.com/gaalferov/ext-domain-connect/actions/workflows/ci-phpunit.yml/badge.svg)
 
 [![PHP version support](https://img.shields.io/packagist/dependency-v/gaalferov/php-ext-domain-connect/php?style=flat)](https://packagist.org/packages/gaalferov/php-ext-domain-connect)
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/gaalferov/php-ext-domain-connect.svg?style=flat)](https://packagist.org/packages/gaalferov/php-ext-domain-connect)
