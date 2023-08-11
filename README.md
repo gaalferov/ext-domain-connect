@@ -1,4 +1,4 @@
-PHP client library for Domain Connect
+PHP extension for Domain Connect
 ===============
 ![GitHub Actions](https://github.com/gaalferov/php-ext-domain-connect/actions/workflows/ci-phpunit.yml/badge.svg)
 
