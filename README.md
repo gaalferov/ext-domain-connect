@@ -1,15 +1,18 @@
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/032df50a272e4fc1a06576d68130066a)](https://app.codacy.com/app/gaalferov/ext-domain-connect?utm_source=github.com&utm_medium=referral&utm_content=gaalferov/ext-domain-connect&utm_campaign=Badge_Grade_Dashboard)
-[![Build Status](https://travis-ci.com/gaalferov/ext-domain-connect.svg?branch=master)](https://travis-ci.com/gaalferov/ext-domain-connect)
+PHP extension for Domain Connect
+===============
+![GitHub Actions](https://github.com/gaalferov/php-ext-domain-connect/actions/workflows/ci-phpunit.yml/badge.svg)
 
-# domain-connect
+[![PHP version support](https://img.shields.io/packagist/dependency-v/gaalferov/php-ext-domain-connect/php?style=flat)](https://packagist.org/packages/gaalferov/php-ext-domain-connect)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/gaalferov/php-ext-domain-connect.svg?style=flat)](https://packagist.org/packages/gaalferov/php-ext-domain-connect)
+[![Total Downloads](https://img.shields.io/packagist/dt/gaalferov/php-ext-domain-connect.svg?style=flat)](https://packagist.org/packages/gaalferov/php-ext-domain-connect)
+
+
 PHP client library for Domain Connect protocol.
 For details of the protocol, please visit: https://domainconnect.org
 Library offers Service Provider functionality in Sync mode.
 
 ## Specification reference
 https://github.com/Domain-Connect/spec/blob/master/Domain%20Connect%20Spec%20Draft.adoc
-- Version: 2.1
-- Revision: 61
 
 ## Install
 ```bash
@@ -136,6 +139,3 @@ try {
 
 ## Tests
 To run tests use next command: `composer tests` or `php vendor/bin/phpunit ./tests`
-
-## TODOs
-- Async flow
