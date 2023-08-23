@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DomainConnect\Exception;
 
 /**
- * Class ConflictOnApplyException
+ * Class ConflictOnApplyException.
  */
 class ConflictOnApplyException extends DomainConnectException
 {

@@ -7,16 +7,15 @@ namespace DomainConnect\Services\Utils;
 use DomainConnect\Exception\NoDomainConnectRecordException;
 
 /**
- * Class DnsUtils
+ * Class DnsUtils.
  */
 class DnsUtils
 {
     /**
-     * Get DNS_A record
+     * Get DNS_A record.
      *
      * @param string $domain Domain name
      *
-     * @return string
      * @throws NoDomainConnectRecordException
      */
     public function getARecord(string $domain): string
@@ -31,19 +30,16 @@ class DnsUtils
     }
 
     /**
-     * Get DNS_TXT records
+     * Get DNS_TXT records.
      *
      * @param string $domain Domain name
      *
-     * @return array
      * @throws NoDomainConnectRecordException
      */
     public function getTxtRecords(string $domain): array
     {
         $txtRecords = array_filter(array_map(
-            function ($record) {
-                return $record['txt'];
-            },
+            fn ($record) => $record['txt'],
             $this->getDnsRecordsByType($domain, DNS_TXT)
         ));
 
@@ -55,12 +51,8 @@ class DnsUtils
     }
 
     /**
-     * Get DNS Records by type
+     * Get DNS Records by type.
      *
-     * @param string $domain
-     * @param int $type
-     *
-     * @return array
      * @throws NoDomainConnectRecordException
      */
     private function getDnsRecordsByType(string $domain, int $type): array

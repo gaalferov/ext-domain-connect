@@ -7,25 +7,26 @@ namespace Tests\Services;
 use DomainConnect\Exception\TemplateNotSupportedException;
 use DomainConnect\Services\TemplateService;
 
-class TemplateServiceTest extends BaseServiceTest
+/**
+ * @internal
+ *
+ * @covers \DomainConnect\Services\TemplateService
+ */
+final class TemplateServiceTest extends BaseServiceTest
 {
     /**
      * @dataProvider templateSupportSuccessProvider
-     *
-     * @param string $domain
-     * @param string $providerId
-     * @param string $serviceId
      */
     public function testGetTemplateSyncUrlSuccessCase(string $domain, string $providerId, string $serviceId): void
     {
-        $config = $this->configs[$domain];
+        $config = BaseServiceTest::CONFIGS[$domain];
         $params = [
             'randomtext' => 'shm:1531371203:Hello world sync',
             'ip' => '132.148.25.185',
         ];
         $templateUrl = self::$templateService->getTemplateSyncUrl($domain, $providerId, $serviceId, $params);
 
-        $this->assertEquals(
+        self::assertSame(
             sprintf(
                 TemplateService::TEMPLATE_APPLY_URL,
                 $config['urlSyncUX'],
@@ -39,9 +40,6 @@ class TemplateServiceTest extends BaseServiceTest
 
     /**
      * @dataProvider templateSupportSuccessProvider
-     *
-     * @param string $domain
-     * @param string $providerId
      */
     public function testGetTemplateSyncUrlInvalidCase(string $domain, string $providerId): void
     {
@@ -67,7 +65,7 @@ class TemplateServiceTest extends BaseServiceTest
      */
     public function testIsTemplateSupportedSuccessCase($domain, $providerId, $serviceId): void
     {
-        $this->assertTrue(self::$templateService->isTemplateSupported(
+        self::assertTrue(self::$templateService->isTemplateSupported(
             $providerId,
             $serviceId,
             self::$dnsService->getDomainSettings($domain)
@@ -82,41 +80,32 @@ class TemplateServiceTest extends BaseServiceTest
      */
     public function testIsTemplateSupportedInvalidCase($domain, $providerId): void
     {
-        $this->assertFalse(self::$templateService->isTemplateSupported(
+        self::assertFalse(self::$templateService->isTemplateSupported(
             $providerId,
             'notExistServiceId',
             self::$dnsService->getDomainSettings($domain)
         ));
     }
 
-    /**
-     * @return array
-     */
-    public function templateSupportSuccessProvider(): array
+    public static function templateSupportSuccessProvider(): iterable
     {
         $data = [];
 
-        foreach ($this->configs as $domainUrl => $domainConfig) {
+        foreach (BaseServiceTest::CONFIGS as $domainUrl => $domainConfig) {
             $data[] = [
                 $domainUrl,
                 'exampleservice.domainconnect.org',
-                'template1'
+                'template1',
             ];
         }
 
         return $data;
     }
 
-    /**
-     * @param $params
-     * @param $config
-     *
-     * @return string
-     */
     private function getApplyQueryByParams($params, $config): string
     {
         $result = array_merge([
-            'domain' => $config['domain']
+            'domain' => $config['domain'],
         ], $params);
 
         ksort($result, SORT_NATURAL | SORT_FLAG_CASE);

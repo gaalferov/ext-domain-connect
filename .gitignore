@@ -17,4 +17,5 @@ Dockerfile
 ###> other ###
 .idea/
 .psalm-cache/
+.php-cs-fixer.cache
 ###> other ###

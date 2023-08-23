@@ -10,29 +10,11 @@ use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class BaseServiceTest
+ * Class BaseServiceTest.
  */
 abstract class BaseServiceTest extends TestCase
 {
-    /**
-     * @var Client|null
-     */
-    protected static ?Client $client;
-
-    /**
-     * @var DnsService|null
-     */
-    protected static ?DnsService $dnsService;
-
-    /**
-     * @var TemplateService|null
-     */
-    protected static ?TemplateService $templateService;
-
-    /**
-     * @var array
-     */
-    public array $configs = [
+    public const CONFIGS = [
         'connect.domains' => [
             'providerName' => 'IONOS',
             'urlAPI' => 'https://api.domainconnect.ionos.com',
@@ -48,6 +30,12 @@ abstract class BaseServiceTest extends TestCase
             'urlAsyncUX' => 'https://dcc.godaddy.com/manage',
         ],
     ];
+
+    protected static ?Client $client;
+
+    protected static ?DnsService $dnsService;
+
+    protected static ?TemplateService $templateService;
 
     public static function setUpBeforeClass(): void
     {

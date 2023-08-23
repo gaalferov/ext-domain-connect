@@ -4,63 +4,46 @@ declare(strict_types=1);
 
 namespace DomainConnect\DTO;
 
-use JsonException;
-use ReflectionClass;
-
 /**
- * Class DomainSettings
+ * Class DomainSettings.
  */
 class DomainSettings
 {
     /**
      * Unique identifier for the DNS Provider.
      * To ensure non-coordinated uniqueness, this should be the domain name of the DNS Provider (e.g. virtucom.com).
-     *
-     * @var string
      */
     private string $providerId = '';
 
     /**
      * The name of the DNS Provider.
-     *
-     * @var string
      */
     private string $providerName = '';
 
     /**
-     * The URL Prefix for the REST API
-     *
-     * @var string
+     * The URL Prefix for the REST API.
      */
     private string $urlAPI = '';
 
     /**
      * (optional) The name of the DNS Provider that should be displayed by the Service Provider.
      * This may change per domain for some DNS Providers that power multiple brands.
-     *
-     * @var string|null
      */
     private ?string $providerDisplayName = null;
 
     /**
-     * Root Domain Name
-     *
-     * @var string
+     * Root Domain Name.
      */
     private string $domain = '';
 
     /**
-     * (optional) Sub domain
-     *
-     * @var string
+     * (optional) Sub domain.
      */
     private string $host = '';
 
     /**
      * (optional) The URL Prefix for linking to the UX of Domain Connect for the synchronous flow at the DNS Provider.
      * If not returned, the DNS Provider is not supporting the synchronous flow on this domain.
-     *
-     * @var string|null
      */
     private ?string $urlSyncUX = null;
 
@@ -68,24 +51,18 @@ class DomainSettings
      * (optional) The URL Prefix for linking to the UX elements of Domain Connect for the asynchronous
      * flow at the DNS Provider.
      * If not returned, the DNS Provider is not supporting the asynchronous flow on this domain.
-     *
-     * @var string|null
      */
     private ?string $urlAsyncUX = null;
 
     /**
      * (optional) This is the desired width of the window for granting consent when navigated in a popup.
      * Default value if not returned should be 750px.
-     *
-     * @var int
      */
     private int $width = 750;
 
     /**
      * (optional) This is the desired height of the window for granting consent when navigated in a popup.
      * Default value if not returned should be 750px.
-     *
-     * @var int
      */
     private int $height = 750;
 
@@ -96,44 +73,30 @@ class DomainSettings
      *
      * To allow deep links to the specific domain, this string may contain %domain% which must be replaced with
      * the domain name.
-     *
-     * @var string|null
      */
     private ?string $urlControlPanel = null;
 
     /**
      * (optional) This is the list of nameservers desired by the DNS Provider for the zone to be authoritative.
      * This does not indicate the authoritative nameservers; for this the registry would be queried.
-     *
-     * @var array
      */
     private array $nameServers = [];
 
-    /**
-     * @var bool
-     */
     private bool $redirectSupported = false;
 
-    /**
-     * @param string $domain
-     */
     public function __construct(string $domain)
     {
         $this->domain = $domain;
     }
 
     /**
-     * @param string $json
-     * @param string $domain
-     *
-     * @return DomainSettings
-     * @throws JsonException
+     * @throws \JsonException
      */
-    public static function loadFromJson(string $json, string $domain): DomainSettings
+    public static function loadFromJson(string $json, string $domain): self
     {
         $result = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
         $obj = new self($domain);
-        $ref = new ReflectionClass($obj);
+        $ref = new \ReflectionClass($obj);
 
         foreach ($result as $key => $val) {
             if ($ref->hasProperty($key)) {

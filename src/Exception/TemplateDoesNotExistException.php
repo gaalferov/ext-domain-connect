@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DomainConnect\Exception;
 
 /**
- * Class TemplateDoesNotExistException
+ * Class TemplateDoesNotExistException.
  */
 class TemplateDoesNotExistException extends DomainConnectException
 {

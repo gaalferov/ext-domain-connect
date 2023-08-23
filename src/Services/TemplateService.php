@@ -13,10 +13,9 @@ use DomainConnect\Exception\NoDomainConnectSettingsException;
 use DomainConnect\Exception\TemplateNotSupportedException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
-use JsonException;
 
 /**
- * Class TemplateService
+ * Class TemplateService.
  */
 class TemplateService
 {
@@ -41,14 +40,8 @@ class TemplateService
      */
     public const TEMPLATE_APPLY_URL = '%s/v2/domainTemplates/providers/%s/services/%s/apply?%s';
 
-    /**
-     * @var DnsService
-     */
     private DnsService $dnsService;
 
-    /**
-     * @var Client
-     */
     private Client $client;
 
     public function __construct(array $clientConfig = [])
@@ -60,14 +53,6 @@ class TemplateService
     /**
      * Makes full Domain Connect discovery of a domain and returns full url to request sync consent.
      *
-     * @param string      $domain
-     * @param string      $providerId
-     * @param string      $serviceId
-     * @param array|null  $params
-     * @param string|null $privateKey
-     * @param string|null $keyId
-     *
-     * @return string
      * @throws InvalidDomainConnectSettingsException
      * @throws InvalidDomainException
      * @throws InvalidPrivateKeyException
@@ -119,13 +104,7 @@ class TemplateService
     }
 
     /**
-     * Check is template supported
-     *
-     * @param string         $providerId
-     * @param string         $serviceId
-     * @param DomainSettings $domainSettings
-     *
-     * @return bool
+     * Check is template supported.
      */
     public function isTemplateSupported(string $providerId, string $serviceId, DomainSettings $domainSettings): bool
     {
@@ -135,10 +114,10 @@ class TemplateService
                 sprintf(self::TEMPLATE_CHECK_URL, $domainSettings->getUrlAPI(), $providerId, $serviceId)
             );
 
-            return $response->getStatusCode() === 200;
+            return 200 === $response->getStatusCode();
         } catch (ClientException $e) {
             // Status 404 indicates that current template doesn't support
-            if ($e->getResponse() && $e->getResponse()->getStatusCode() === 404) {
+            if ($e->getResponse() && 404 === $e->getResponse()->getStatusCode()) {
                 return false;
             }
 
@@ -147,15 +126,13 @@ class TemplateService
     }
 
     /**
-     * Computes a signature for the specified query
+     * Computes a signature for the specified query.
      *
      * @param string $privateKey Private key
      * @param string $query      Data
      *
-     * @return string
-     *
      * @throws InvalidPrivateKeyException
-     * @throws JsonException
+     * @throws \JsonException
      */
     private function generateSign(string $privateKey, string $query): string
     {
@@ -169,11 +146,11 @@ class TemplateService
             }
 
             throw new InvalidPrivateKeyException(
-                'Private key is invalid: ' . json_encode($openSSLErrors, JSON_THROW_ON_ERROR)
+                'Private key is invalid: '.json_encode($openSSLErrors, JSON_THROW_ON_ERROR)
             );
         }
 
-        //Generate signature
+        // Generate signature
         openssl_sign($query, $signature, $key, self::SIGNATURE_ALG);
 
         return base64_encode($signature);

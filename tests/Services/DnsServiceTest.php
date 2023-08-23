@@ -8,30 +8,33 @@ use DomainConnect\DTO\DomainSettings;
 use DomainConnect\Exception\InvalidDomainException;
 use DomainConnect\Exception\NoDomainConnectRecordException;
 
-class DnsServiceTest extends BaseServiceTest
+/**
+ * @internal
+ *
+ * @covers \DomainConnect\Services\DnsService
+ */
+final class DnsServiceTest extends BaseServiceTest
 {
     /**
-     * @dataProvider dnsServiceSuccessProvider
-     *
-     * @param string     $domainUrl
+     * @dataProvider provideGetDomainSettingsSuccessCaseCases
      */
     public function testGetDomainSettingsSuccessCase(string $domainUrl): void
     {
         $domainSettings = self::$dnsService->getDomainSettings($domainUrl);
-        $config = $this->configs[$domainUrl];
+        $config = BaseServiceTest::CONFIGS[$domainUrl];
 
-        $this->assertInstanceOf(DomainSettings::class, $domainSettings);
+        self::assertInstanceOf(DomainSettings::class, $domainSettings);
 
         foreach ($config as $key => $value) {
-            $methodName = 'get' . ucfirst($key);
-            $this->assertEquals($value, $domainSettings->$methodName());
+            $methodName = 'get'.ucfirst($key);
+            self::assertSame($value, $domainSettings->{$methodName}());
         }
     }
 
     /**
-     * @dataProvider invalidDomainProvider
+     * @dataProvider provideGetDomainSettingsInvalidDomainCaseCases
      */
-    public function testGetDomainSettingsInvalidDomainCase($domain): void
+    public function testGetDomainSettingsInvalidDomainCase(string $domain): void
     {
         $this->expectException(InvalidDomainException::class);
 
@@ -45,24 +48,18 @@ class DnsServiceTest extends BaseServiceTest
         self::$dnsService->getDomainSettings('blasdasdawsdasdx.qqqqqqq');
     }
 
-    /**
-     * @return array
-     */
-    public function dnsServiceSuccessProvider(): array
+    public static function provideGetDomainSettingsSuccessCaseCases(): iterable
     {
         $data = [];
 
-        foreach ($this->configs as $domainUrl => $domainConfig) {
+        foreach (BaseServiceTest::CONFIGS as $domainUrl => $domainConfig) {
             $data[] = [$domainUrl];
         }
 
         return $data;
     }
 
-    /**
-     * @return array
-     */
-    public function invalidDomainProvider(): array
+    public static function provideGetDomainSettingsInvalidDomainCaseCases(): iterable
     {
         return [
             ['a-.bc.com'],

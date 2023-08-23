@@ -10,12 +10,11 @@ use DomainConnect\Exception\InvalidDomainException;
 use DomainConnect\Exception\NoDomainConnectRecordException;
 use DomainConnect\Exception\NoDomainConnectSettingsException;
 use DomainConnect\Services\Utils\DnsUtils;
-use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 
 /**
- * Class Dns
+ * Class Dns.
  */
 class DnsService
 {
@@ -27,20 +26,12 @@ class DnsService
      */
     public const DOMAIN_SETTINGS_URL = 'https://%s/v2/%s/settings';
 
-    /**
-     * @var Client
-     */
     private Client $client;
 
-    /**
-     * @var DnsUtils
-     */
     private DnsUtils $dnsUtils;
 
     /**
      * DnsService constructor.
-     *
-     * @param Client $client
      */
     public function __construct(Client $client)
     {
@@ -49,11 +40,7 @@ class DnsService
     }
 
     /**
-     * Get Domain settings
-     *
-     * @param string $domain
-     *
-     * @return DomainSettings
+     * Get Domain settings.
      *
      * @throws InvalidDomainConnectSettingsException
      * @throws NoDomainConnectSettingsException
@@ -63,7 +50,7 @@ class DnsService
     public function getDomainSettings(string $domain): DomainSettings
     {
         if (!filter_var($domain, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
-            throw new InvalidDomainException('Invalid domain name: ' . $domain);
+            throw new InvalidDomainException('Invalid domain name: '.$domain);
         }
 
         $apiUrl = $this->getDomainApiUrl($domain);
@@ -73,23 +60,21 @@ class DnsService
 
             return DomainSettings::loadFromJson($response->getBody()->getContents(), $domain);
         } catch (ClientException $e) {
-            //A response of a 404 indicates that the DNS Provider does not have the zone.
+            // A response of a 404 indicates that the DNS Provider does not have the zone.
             throw new NoDomainConnectSettingsException(
                 'Domain does not support domain connect. You would need to make DNS changes manually.'
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             throw new InvalidDomainConnectSettingsException(
-                'Cannot fetch DomainConnect Settings. Error: '. $e->getMessage()
+                'Cannot fetch DomainConnect Settings. Error: '.$e->getMessage()
             );
         }
     }
 
     /**
-     * Get domain api url
+     * Get domain api url.
      *
      * @param string $domain Domain name
-     *
-     * @return string
      *
      * @throws NoDomainConnectRecordException
      */
