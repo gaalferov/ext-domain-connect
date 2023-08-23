@@ -1,23 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DomainConnect\Services\Utils;
 
 use DomainConnect\Exception\NoDomainConnectRecordException;
 
 /**
- * Class DnsUtils
+ * Class DnsUtils.
  */
 class DnsUtils
 {
     /**
-     * Get DNS_A record
+     * Get DNS_A record.
      *
-     * @param $domain string Domain name
+     * @param string $domain Domain name
      *
-     * @return string
      * @throws NoDomainConnectRecordException
      */
-    public function getARecord($domain)
+    public function getARecord(string $domain): string
     {
         $dnsRecord = $this->getDnsRecordsByType($domain, DNS_A | DNS_AAAA);
 
@@ -29,19 +30,16 @@ class DnsUtils
     }
 
     /**
-     * Get DNS_TXT records
+     * Get DNS_TXT records.
      *
-     * @param $domain string Domain name
+     * @param string $domain Domain name
      *
-     * @return array
      * @throws NoDomainConnectRecordException
      */
-    public function getTxtRecords($domain)
+    public function getTxtRecords(string $domain): array
     {
         $txtRecords = array_filter(array_map(
-            function ($record) {
-                return $record['txt'];
-            },
+            fn ($record) => $record['txt'],
             $this->getDnsRecordsByType($domain, DNS_TXT)
         ));
 
@@ -53,38 +51,11 @@ class DnsUtils
     }
 
     /**
-     * Get DNS_MX record
+     * Get DNS Records by type.
      *
-     * @param $domain string Domain name
-     *
-     * @return array
      * @throws NoDomainConnectRecordException
      */
-    public function getMxRecord($domain)
-    {
-        $dnsRecord = $this->getDnsRecordsByType($domain, DNS_MX);
-
-        if (!isset($dnsRecord[0]['host'])) {
-            throw new NoDomainConnectRecordException("Couldn't find MX DNS record for {$domain}.");
-        }
-
-        return [
-            'host' => $dnsRecord[0]['host'],
-            'ip' => $this->getARecord($dnsRecord[0]['host']),
-            'priority' => $dnsRecord[0]['pri']
-        ];
-    }
-
-    /**
-     * Get DNS Records by type
-     *
-     * @param $domain
-     * @param $type
-     *
-     * @return array
-     * @throws NoDomainConnectRecordException
-     */
-    private function getDnsRecordsByType($domain, $type)
+    private function getDnsRecordsByType(string $domain, int $type): array
     {
         $dnsRecord = @dns_get_record($domain, $type);
 

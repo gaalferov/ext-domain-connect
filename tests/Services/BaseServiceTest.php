@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Services;
 
 use DomainConnect\Services\DnsService;
@@ -8,29 +10,11 @@ use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class BaseServiceTest
+ * Class BaseServiceTest.
  */
 abstract class BaseServiceTest extends TestCase
 {
-    /**
-     * @var Client
-     */
-    protected static $client;
-
-    /**
-     * @var DnsService
-     */
-    protected static $dnsService;
-
-    /**
-     * @var TemplateService
-     */
-    protected static $templateService;
-
-    /**
-     * @var array
-     */
-    public $configs = [
+    public const CONFIGS = [
         'connect.domains' => [
             'providerName' => 'IONOS',
             'urlAPI' => 'https://api.domainconnect.ionos.com',
@@ -38,17 +22,22 @@ abstract class BaseServiceTest extends TestCase
             'urlSyncUX' => 'https://domainconnect.ionos.com/sync',
             'urlAsyncUX' => 'https://domainconnect.ionos.com/async',
         ],
-        'https://www.domainconnect.org' => [
+        'domainconnect.org' => [
             'providerName' => 'GoDaddy',
             'urlAPI' => 'https://domainconnect.api.godaddy.com',
             'domain' => 'domainconnect.org',
-            'host' => 'www',
             'urlSyncUX' => 'https://dcc.godaddy.com/manage',
             'urlAsyncUX' => 'https://dcc.godaddy.com/manage',
         ],
     ];
 
-    public static function setUpBeforeClass()
+    protected static ?Client $client;
+
+    protected static ?DnsService $dnsService;
+
+    protected static ?TemplateService $templateService;
+
+    public static function setUpBeforeClass(): void
     {
         self::$client = new Client(['verify' => false]);
         self::$dnsService = new DnsService(self::$client);
@@ -57,7 +46,7 @@ abstract class BaseServiceTest extends TestCase
         parent::setUpBeforeClass();
     }
 
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         self::$client = null;
         self::$dnsService = null;

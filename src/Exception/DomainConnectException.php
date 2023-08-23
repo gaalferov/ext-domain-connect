@@ -1,14 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DomainConnect\Exception;
 
-use Exception;
-
 /**
- * Class DomainException
+ * Class DomainException.
  *
  * This defines the base class for all Domain Connect exceptions.
  */
-class DomainConnectException extends Exception
+class DomainConnectException extends \Exception
 {
 }

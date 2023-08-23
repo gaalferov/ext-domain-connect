@@ -1,68 +1,69 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Services;
 
 use DomainConnect\DTO\DomainSettings;
+use DomainConnect\Exception\InvalidDomainException;
+use DomainConnect\Exception\NoDomainConnectRecordException;
 
-class DnsServiceTest extends BaseServiceTest
+/**
+ * @internal
+ *
+ * @covers \DomainConnect\Services\DnsService
+ */
+final class DnsServiceTest extends BaseServiceTest
 {
     /**
-     * @dataProvider dnsServiceSuccessProvider
-     *
-     * @param string     $domainUrl
+     * @dataProvider provideGetDomainSettingsSuccessCaseCases
      */
-    public function testGetDomainSettingsSuccessCase($domainUrl)
+    public function testGetDomainSettingsSuccessCase(string $domainUrl): void
     {
         $domainSettings = self::$dnsService->getDomainSettings($domainUrl);
-        $config = $this->configs[$domainUrl];
+        $config = BaseServiceTest::CONFIGS[$domainUrl];
 
-        $this->assertInstanceOf(DomainSettings::class, $domainSettings);
+        self::assertInstanceOf(DomainSettings::class, $domainSettings);
 
         foreach ($config as $key => $value) {
-            $this->assertEquals($value, $domainSettings->{$key});
+            $methodName = 'get'.ucfirst($key);
+            self::assertSame($value, $domainSettings->{$methodName}());
         }
     }
 
     /**
-     * @dataProvider invalidDomainProvider
-     *
-     * @expectedException     DomainConnect\Exception\InvalidDomainException
+     * @dataProvider provideGetDomainSettingsInvalidDomainCaseCases
      */
-    public function testGetDomainSettingsInvalidDomainCase($domain)
+    public function testGetDomainSettingsInvalidDomainCase(string $domain): void
     {
+        $this->expectException(InvalidDomainException::class);
+
         self::$dnsService->getDomainSettings($domain);
     }
 
-    /**
-     * @expectedException     DomainConnect\Exception\NoDomainConnectRecordException
-     */
-    public function testGetDomainSettingsInvalidCase()
+    public function testGetDomainSettingsInvalidCase(): void
     {
+        $this->expectException(NoDomainConnectRecordException::class);
+
         self::$dnsService->getDomainSettings('blasdasdawsdasdx.qqqqqqq');
     }
 
-    /**
-     * @return array
-     */
-    public function dnsServiceSuccessProvider()
+    public static function provideGetDomainSettingsSuccessCaseCases(): iterable
     {
         $data = [];
 
-        foreach ($this->configs as $domainUrl => $domainConfig) {
+        foreach (BaseServiceTest::CONFIGS as $domainUrl => $domainConfig) {
             $data[] = [$domainUrl];
         }
 
         return $data;
     }
 
-    /**
-     * @return array
-     */
-    public function invalidDomainProvider()
+    public static function provideGetDomainSettingsInvalidDomainCaseCases(): iterable
     {
         return [
-            ['http://a-.bc.com'],
-            ['http://toolongtoolongtoolongtoolongtoolongtoolongtoolongtoolongtoolongtoolong.com'],
+            ['a-.bc.com'],
+            ['toolongtoolongtoolongtoolongtoolongtoolongtoolongtoolongtoolongtoolong.com'],
         ];
     }
 }
