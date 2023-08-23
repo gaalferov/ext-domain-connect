@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DomainConnect\Services;
 
 use DomainConnect\DTO\DomainSettings;
@@ -11,8 +13,6 @@ use DomainConnect\Services\Utils\DnsUtils;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
-use LayerShifter\TLDExtract\Extract;
-use LayerShifter\TLDExtract\ResultInterface;
 
 /**
  * Class Dns
@@ -25,22 +25,17 @@ class DnsService
      *
      * @var string https://{_domainconnect}/v2/{domain}/settings
      */
-    const DOMAIN_SETTINGS_URL = 'https://%s/v2/%s/settings';
+    public const DOMAIN_SETTINGS_URL = 'https://%s/v2/%s/settings';
 
     /**
      * @var Client
      */
-    private $client;
-
-    /**
-     * @var Extract
-     */
-    private $domainExtractor;
+    private Client $client;
 
     /**
      * @var DnsUtils
      */
-    private $dnsUtils;
+    private DnsUtils $dnsUtils;
 
     /**
      * DnsService constructor.
@@ -50,7 +45,6 @@ class DnsService
     public function __construct(Client $client)
     {
         $this->client = $client;
-        $this->domainExtractor = new Extract();
         $this->dnsUtils = new DnsUtils();
     }
 
@@ -64,32 +58,20 @@ class DnsService
      * @throws InvalidDomainConnectSettingsException
      * @throws NoDomainConnectSettingsException
      * @throws InvalidDomainException
+     * @throws NoDomainConnectRecordException
      */
-    public function getDomainSettings($domain)
+    public function getDomainSettings(string $domain): DomainSettings
     {
-        $extractDomain = $this->domainExtractor->parse($domain);
-
-        if (!$extractDomain->isIp() && !$extractDomain->isValidDomain()) {
+        if (!filter_var($domain, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
             throw new InvalidDomainException('Invalid domain name: ' . $domain);
         }
 
-        $subDomain = $extractDomain->getSubdomain();
-        $rootDomainName = $this->getRootDomainName($extractDomain);
-        $apiUrl = $this->getDomainApiUrl($rootDomainName);
+        $apiUrl = $this->getDomainApiUrl($domain);
 
         try {
-            $response = $this->client->request('GET', sprintf(self::DOMAIN_SETTINGS_URL, $apiUrl, $rootDomainName));
-            $domainSettings = DomainSettings::loadFromJson($response->getBody()->getContents());
+            $response = $this->client->request('GET', sprintf(self::DOMAIN_SETTINGS_URL, $apiUrl, $domain));
 
-            if (empty($domainSettings->domain)) {
-                $domainSettings->domain = $rootDomainName;
-            }
-
-            if (!empty($subDomain)) {
-                $domainSettings->host = $subDomain;
-            }
-
-            return $domainSettings;
+            return DomainSettings::loadFromJson($response->getBody()->getContents(), $domain);
         } catch (ClientException $e) {
             //A response of a 404 indicates that the DNS Provider does not have the zone.
             throw new NoDomainConnectSettingsException(
@@ -103,40 +85,24 @@ class DnsService
     }
 
     /**
-     * @param ResultInterface $domain
-     *
-     * @return string
-     */
-    private function getRootDomainName(ResultInterface $domain)
-    {
-        if ($domain->isIp()) {
-            return $domain->getHostname();
-        }
-
-        return $domain->getRegistrableDomain();
-    }
-
-    /**
      * Get domain api url
      *
-     * @param $rootDomainName string Domain name
+     * @param string $domain Domain name
      *
      * @return string
      *
      * @throws NoDomainConnectRecordException
      */
-    private function getDomainApiUrl($rootDomainName)
+    private function getDomainApiUrl(string $domain): string
     {
-        $dnsRecords = $this->dnsUtils->getTxtRecords("_domainconnect.{$rootDomainName}");
+        $dnsRecords = $this->dnsUtils->getTxtRecords("_domainconnect.{$domain}");
 
         foreach ($dnsRecords as $dnsApiUrl) {
-            $domain = $this->domainExtractor->parse($dnsApiUrl);
-
-            if ($domain->isValidDomain()) {
-                return $domain->getFullHost();
+            if (filter_var($domain, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+                return $dnsApiUrl;
             }
         }
 
-        throw new NoDomainConnectRecordException("No Domain Connect API found for {$rootDomainName}.");
+        throw new NoDomainConnectRecordException("No Domain Connect API found for {$domain}.");
     }
 }

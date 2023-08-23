@@ -1,13 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DomainConnect\Services;
 
 use DomainConnect\DTO\DomainSettings;
 use DomainConnect\Exception\InvalidDomainConnectSettingsException;
+use DomainConnect\Exception\InvalidDomainException;
 use DomainConnect\Exception\InvalidPrivateKeyException;
+use DomainConnect\Exception\NoDomainConnectRecordException;
+use DomainConnect\Exception\NoDomainConnectSettingsException;
 use DomainConnect\Exception\TemplateNotSupportedException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use JsonException;
 
 /**
  * Class TemplateService
@@ -15,12 +21,17 @@ use GuzzleHttp\Exception\ClientException;
 class TemplateService
 {
     /**
+     * @var string Signature algorithm
+     */
+    public const SIGNATURE_ALG = 'sha256WithRSAEncryption';
+
+    /**
      * This URL is be used by the Service Provider to determine if the DNS Provider supports a specific
      * template through the synchronous flow.
      *
      * @var string {urlAPI}/v2/domainTemplates/providers/{providerId}/services/{serviceId}
      */
-    const TEMPLATE_CHECK_URL = '%s/v2/domainTemplates/providers/%s/services/%s';
+    public const TEMPLATE_CHECK_URL = '%s/v2/domainTemplates/providers/%s/services/%s';
 
     /**
      * This is the URL where the user is sent to apply a template to a domain they own.
@@ -28,22 +39,17 @@ class TemplateService
      *
      * @var string {urlSyncUX}/v2/domainTemplates/providers/{providerId}/services/{serviceId}/apply?[properties]
      */
-    const TEMPLATE_APPLY_URL = '%s/v2/domainTemplates/providers/%s/services/%s/apply?%s';
-
-    /**
-     * @var string Signature algorithm
-     */
-    const SIGNATURE_ALG = 'sha256WithRSAEncryption';
+    public const TEMPLATE_APPLY_URL = '%s/v2/domainTemplates/providers/%s/services/%s/apply?%s';
 
     /**
      * @var DnsService
      */
-    private $dnsService;
+    private DnsService $dnsService;
 
     /**
      * @var Client
      */
-    private $client;
+    private Client $client;
 
     public function __construct(array $clientConfig = [])
     {
@@ -54,26 +60,29 @@ class TemplateService
     /**
      * Makes full Domain Connect discovery of a domain and returns full url to request sync consent.
      *
-     * @param string $domain
-     * @param string $providerId
-     * @param string $serviceId
-     * @param array  optional $params
-     * @param string optional $privateKey RSA key in PEM format
-     * @param string optional $keyId      host name of the TXT record with public KEY (appended to syncPubKeyDomain)
+     * @param string      $domain
+     * @param string      $providerId
+     * @param string      $serviceId
+     * @param array|null  $params
+     * @param string|null $privateKey
+     * @param string|null $keyId
      *
      * @return string
-     *
-     * @throws TemplateNotSupportedException
      * @throws InvalidDomainConnectSettingsException
+     * @throws InvalidDomainException
+     * @throws InvalidPrivateKeyException
+     * @throws NoDomainConnectRecordException
+     * @throws NoDomainConnectSettingsException
+     * @throws TemplateNotSupportedException
      */
     public function getTemplateSyncUrl(
-        $domain,
-        $providerId,
-        $serviceId,
-        $params = null,
-        $privateKey = null,
-        $keyId = null
-    ) {
+        string $domain,
+        string $providerId,
+        string $serviceId,
+        array $params = null,
+        string $privateKey = null,
+        string $keyId = null
+    ): string {
         $params = $params ?: [];
         $domainSettings = $this->dnsService->getDomainSettings($domain);
 
@@ -83,14 +92,14 @@ class TemplateService
             );
         }
 
-        if (!$domainSettings->urlSyncUX) {
+        if (!$domainSettings->getUrlSyncUX()) {
             throw new InvalidDomainConnectSettingsException('No sync URL in config');
         }
 
-        $params['domain'] = $domainSettings->domain;
+        $params['domain'] = $domainSettings->getDomain();
 
-        if (!empty($domainSettings->host)) {
-            $params['host'] = $domainSettings->host;
+        if (!empty($domainSettings->getHost())) {
+            $params['host'] = $domainSettings->getHost();
         }
 
         ksort($params, SORT_NATURAL | SORT_FLAG_CASE);
@@ -102,7 +111,7 @@ class TemplateService
 
         return sprintf(
             self::TEMPLATE_APPLY_URL,
-            $domainSettings->urlSyncUX,
+            $domainSettings->getUrlSyncUX(),
             $providerId,
             $serviceId,
             http_build_query($params)
@@ -118,12 +127,12 @@ class TemplateService
      *
      * @return bool
      */
-    public function isTemplateSupported($providerId, $serviceId, DomainSettings $domainSettings)
+    public function isTemplateSupported(string $providerId, string $serviceId, DomainSettings $domainSettings): bool
     {
         try {
             $response = $this->client->request(
                 'GET',
-                sprintf(self::TEMPLATE_CHECK_URL, $domainSettings->urlAPI, $providerId, $serviceId)
+                sprintf(self::TEMPLATE_CHECK_URL, $domainSettings->getUrlAPI(), $providerId, $serviceId)
             );
 
             return $response->getStatusCode() === 200;
@@ -146,8 +155,9 @@ class TemplateService
      * @return string
      *
      * @throws InvalidPrivateKeyException
+     * @throws JsonException
      */
-    private function generateSign($privateKey, $query)
+    private function generateSign(string $privateKey, string $query): string
     {
         $key = openssl_pkey_get_private($privateKey);
 
@@ -158,7 +168,9 @@ class TemplateService
                 $openSSLErrors[] = $error;
             }
 
-            throw new InvalidPrivateKeyException('Private key is invalid: ' . json_encode($openSSLErrors));
+            throw new InvalidPrivateKeyException(
+                'Private key is invalid: ' . json_encode($openSSLErrors, JSON_THROW_ON_ERROR)
+            );
         }
 
         //Generate signature

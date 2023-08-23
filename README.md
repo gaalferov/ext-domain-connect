@@ -14,6 +14,9 @@ Library offers Service Provider functionality in Sync mode.
 ## Specification reference
 https://github.com/Domain-Connect/spec/blob/master/Domain%20Connect%20Spec%20Draft.adoc
 
+## DC Templates
+https://github.com/Domain-Connect/Templates/tree/master
+
 ## Install
 ```bash
 composer require gaalferov/php-ext-domain-connect
@@ -34,13 +37,13 @@ use DomainConnect\Services\TemplateService;
 
 try {
     $applyUrl = (new TemplateService())->getTemplateSyncUrl(
-        'foo.connect.domains',
-        'exampleservice.domainconnect.org',
-        'template1',
+        'domainconnect.org', // domain name
+        'exampleservice.domainconnect.org',  // providerId from the template
+        'template1', // serviceId from the template
         [
             'IP' => '132.148.25.185',
             'RANDOMTEXT' => 'shm:1531371203:Hello world sync',
-            'redirect_uri' => 'http://example.com',
+            'redirect_uri' => 'https://your-client-page.com',
             'state' => 'someState'
         ],
     );
@@ -54,7 +57,8 @@ try {
 
 Output:
 ```text
-https://domainconnect.1and1.com/sync/v2/domainTemplates/providers/exampleservice.domainconnect.org/services/template1/apply?domain=connect.domains&host=foo&IP=132.148.25.185&RANDOMTEXT=shm%3A1531371203%3AHello+world+sync&redirect_uri=http%3A%2F%2Fexample.com&state=someState
+https://dcc.godaddy.com/manage/v2/domainTemplates/providers/exampleservice.domainconnect.org/services/template1/apply?domain=domainconnect.org&IP=132.148.25.185&RANDOMTEXT=shm%3A1531371203%3AHello+world+sync&redirect_uri=https%3A%2F%2Fyour-client-page.com&state=someState
+
 ```
 
 ### Sync flow with signed request
@@ -73,13 +77,13 @@ try {
     $keyId = '_dck1';
     
     $applyUrl = $templateService->getTemplateSyncUrl(
-        'foo.connect.domains',
-        'exampleservice.domainconnect.org',
-        'template1',
+        'domainconnect.org', // domain name
+        'exampleservice.domainconnect.org',  // providerId from the template
+        'template1', // serviceId from the template
         [
             'IP' => '132.148.25.185',
             'RANDOMTEXT' => 'shm:1531371203:Hello world sync',
-            'redirect_uri' => 'http://example.com',
+            'redirect_uri' => 'https://your-client-page.com',
             'state' => 'someState'
         ],
         $privateKey,
@@ -117,7 +121,7 @@ try {
     ]);
     
     $applyUrl = $templateService->getTemplateSyncUrl(
-        'foo.connect.domains',
+        'domainconnect.org',
         'exampleservice.domainconnect.org',
         'template1',
         [

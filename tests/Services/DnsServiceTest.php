@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Services;
 
 use DomainConnect\DTO\DomainSettings;
+use DomainConnect\Exception\InvalidDomainException;
+use DomainConnect\Exception\NoDomainConnectRecordException;
 
 class DnsServiceTest extends BaseServiceTest
 {
@@ -11,7 +15,7 @@ class DnsServiceTest extends BaseServiceTest
      *
      * @param string     $domainUrl
      */
-    public function testGetDomainSettingsSuccessCase($domainUrl)
+    public function testGetDomainSettingsSuccessCase(string $domainUrl): void
     {
         $domainSettings = self::$dnsService->getDomainSettings($domainUrl);
         $config = $this->configs[$domainUrl];
@@ -19,32 +23,32 @@ class DnsServiceTest extends BaseServiceTest
         $this->assertInstanceOf(DomainSettings::class, $domainSettings);
 
         foreach ($config as $key => $value) {
-            $this->assertEquals($value, $domainSettings->{$key});
+            $methodName = 'get' . ucfirst($key);
+            $this->assertEquals($value, $domainSettings->$methodName());
         }
     }
 
     /**
      * @dataProvider invalidDomainProvider
-     *
-     * @expectedException     DomainConnect\Exception\InvalidDomainException
      */
-    public function testGetDomainSettingsInvalidDomainCase($domain)
+    public function testGetDomainSettingsInvalidDomainCase($domain): void
     {
+        $this->expectException(InvalidDomainException::class);
+
         self::$dnsService->getDomainSettings($domain);
     }
 
-    /**
-     * @expectedException     DomainConnect\Exception\NoDomainConnectRecordException
-     */
-    public function testGetDomainSettingsInvalidCase()
+    public function testGetDomainSettingsInvalidCase(): void
     {
+        $this->expectException(NoDomainConnectRecordException::class);
+
         self::$dnsService->getDomainSettings('blasdasdawsdasdx.qqqqqqq');
     }
 
     /**
      * @return array
      */
-    public function dnsServiceSuccessProvider()
+    public function dnsServiceSuccessProvider(): array
     {
         $data = [];
 
@@ -58,11 +62,11 @@ class DnsServiceTest extends BaseServiceTest
     /**
      * @return array
      */
-    public function invalidDomainProvider()
+    public function invalidDomainProvider(): array
     {
         return [
-            ['http://a-.bc.com'],
-            ['http://toolongtoolongtoolongtoolongtoolongtoolongtoolongtoolongtoolongtoolong.com'],
+            ['a-.bc.com'],
+            ['toolongtoolongtoolongtoolongtoolongtoolongtoolongtoolongtoolongtoolong.com'],
         ];
     }
 }

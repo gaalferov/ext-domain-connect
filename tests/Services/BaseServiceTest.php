@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Services;
 
 use DomainConnect\Services\DnsService;
@@ -13,24 +15,24 @@ use PHPUnit\Framework\TestCase;
 abstract class BaseServiceTest extends TestCase
 {
     /**
-     * @var Client
+     * @var Client|null
      */
-    protected static $client;
+    protected static ?Client $client;
 
     /**
-     * @var DnsService
+     * @var DnsService|null
      */
-    protected static $dnsService;
+    protected static ?DnsService $dnsService;
 
     /**
-     * @var TemplateService
+     * @var TemplateService|null
      */
-    protected static $templateService;
+    protected static ?TemplateService $templateService;
 
     /**
      * @var array
      */
-    public $configs = [
+    public array $configs = [
         'connect.domains' => [
             'providerName' => 'IONOS',
             'urlAPI' => 'https://api.domainconnect.ionos.com',
@@ -38,17 +40,16 @@ abstract class BaseServiceTest extends TestCase
             'urlSyncUX' => 'https://domainconnect.ionos.com/sync',
             'urlAsyncUX' => 'https://domainconnect.ionos.com/async',
         ],
-        'https://www.domainconnect.org' => [
+        'domainconnect.org' => [
             'providerName' => 'GoDaddy',
             'urlAPI' => 'https://domainconnect.api.godaddy.com',
             'domain' => 'domainconnect.org',
-            'host' => 'www',
             'urlSyncUX' => 'https://dcc.godaddy.com/manage',
             'urlAsyncUX' => 'https://dcc.godaddy.com/manage',
         ],
     ];
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         self::$client = new Client(['verify' => false]);
         self::$dnsService = new DnsService(self::$client);
@@ -57,7 +58,7 @@ abstract class BaseServiceTest extends TestCase
         parent::setUpBeforeClass();
     }
 
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         self::$client = null;
         self::$dnsService = null;
