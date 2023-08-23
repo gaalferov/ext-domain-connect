@@ -1,6 +1,7 @@
 PHP extension for Domain Connect
 ===============
 ![GitHub Actions](https://github.com/gaalferov/ext-domain-connect/actions/workflows/ci-phpunit.yml/badge.svg)
+![GitHub Actions](https://github.com/gaalferov/ext-domain-connect/actions/workflows/ci-php-cs-fixer.yml/badge.svg)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/1df868212d224c8589005c2e8aee7e45)](https://app.codacy.com/gh/gaalferov/ext-domain-connect/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
 [![PHP version support](https://img.shields.io/packagist/dependency-v/gaalferov/php-ext-domain-connect/php?style=flat)](https://packagist.org/packages/gaalferov/php-ext-domain-connect)
